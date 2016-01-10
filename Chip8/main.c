@@ -1,11 +1,13 @@
 //  Chip8 emulator project
 //
-//  Created by Tim Tikidjian.
+//  Created by Tim Tikijian.
 //  Copyright © 2016 Tikijian. No rights reserved.
 //
 
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <SDL2/SDL.h>
 
 // =============== Chip-8 Internals ===================
@@ -57,6 +59,16 @@ void reset();
 // Font-to-memory routine
 void load_fontset();
 
+// Loads rom into memory
+bool load_program(const char *filename);
+
+// ====================================================
+
+
+// =============== Emulation ==========================
+
+void emulate_cycle();
+
 // ====================================================
 
 
@@ -65,15 +77,32 @@ int main(int argc, const char * argv[]) {
     
     initialize();
     
-    for (int i = 0; i < 80; i++) {
-        printf("%0#2x \n", memory[i]);
+    // Emulation loop
+//    for(;;)
+//    {
+        // Emulate one cycle
+        
+        
+        // If the draw flag is set, update the screen
+       
+            //drawGraphics();
+        
+        // Store key press state (Press and Release)
+        
+//    }
+    
+    
+    for (int i = 0; i < 100; i++) {
+        printf("%#02x\n", memory[0x200 + i]);
     }
     
+    printf("Bye!\n");
     return 0;
 }
 
 void initialize()
 {
+    printf("Initializing...\n");
     reset();
     load_fontset();
     return;
@@ -81,14 +110,52 @@ void initialize()
 
 void reset()
 {
+    printf("Starting CPU reset sequence...\n");
     PC      = 0x200; // start program at address 0x200
     opcode  = 0;
     I       = 0;
     SP      = 0;
     
-    // reset display
-    // reset keyboard
-    // reset everything
+    memset(V, 0, 16); //reset registers
+    memset(keyboard, 0, 16); // reset keyboard state
+    memset(display, 0, 2048); // clear display data
+    
+    if (! load_program("roms/IBM.ch8"))
+        exit(-1);
+}
+
+bool load_program(const char *filename)
+{
+    FILE *pFile;
+    long lSize;
+
+    pFile = fopen(filename, "rb");
+    if (pFile == NULL) {
+        printf("Unable to open file \"%s\"\n", filename);
+        return false;
+    }
+    
+    // obtain file size:
+    fseek (pFile , 0 , SEEK_END);
+    lSize = ftell (pFile);
+    rewind (pFile);
+    
+    // copy file data into the memory, from address 0x200:
+    fread (&memory[0x200], 1, lSize, pFile);
+    
+    fclose (pFile);
+
+    return true;
+}
+
+void emulate_cycle()
+{
+    // Fetch Opcode
+    // Decode Opcode
+    // Execute Opcode
+    
+    // Update timers
+    return;
 }
 
 void load_fontset()

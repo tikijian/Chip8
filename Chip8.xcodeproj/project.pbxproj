@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D62965371C42BFEA00E578EA /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = D62965361C42BFEA00E578EA /* main.c */; };
+		D629653E1C42C00F00E578EA /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D629653D1C42C00F00E578EA /* SDL2.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		D62965331C42BFEA00E578EA /* Chip8 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chip8; sourceTree = BUILT_PRODUCTS_DIR; };
 		D62965361C42BFEA00E578EA /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		D629653D1C42C00F00E578EA /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D629653E1C42C00F00E578EA /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +44,7 @@
 		D629652A1C42BFEA00E578EA = {
 			isa = PBXGroup;
 			children = (
+				D629653D1C42C00F00E578EA /* SDL2.framework */,
 				D62965351C42BFEA00E578EA /* Chip8 */,
 				D62965341C42BFEA00E578EA /* Products */,
 			);
@@ -207,6 +211,10 @@
 		D629653B1C42BFEA00E578EA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -214,6 +222,10 @@
 		D629653C1C42BFEA00E578EA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

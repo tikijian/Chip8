@@ -10,43 +10,8 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 
-// =============== Chip-8 Internals ===================
-
-// 4KB RAM
-unsigned char memory[4096] = {0};
-
-// 16 General purpose registers
-unsigned char V[16] = {0};
-
-// Address register
-unsigned short I = 0;
-
-// Sound register
-unsigned char sound_t = 0;
-
-// Delay timer
-unsigned char delay_t = 0;
-
-// Program counter register
-unsigned short PC = 0;
-
-// Stack
-unsigned short stack[16] = {0};
-
-// Stack pointer
-unsigned short SP = 0;
-
-// Current opcode
-unsigned short opcode;
-
-// Display array
-unsigned char display[2048]; // 2048 pixels
-
-// Keyboard with 16 keys
-unsigned char keyboard[16] = {0};
-
-// ====================================================
-
+#include "cpu.h"
+#include "opcodes.h"
 
 // =============== General purpose functions ==========
 
@@ -63,14 +28,6 @@ void load_fontset();
 bool load_program(const char *filename);
 
 // ====================================================
-
-
-// =============== Emulation ==========================
-
-void emulate_cycle();
-
-// ====================================================
-
 
 
 int main(int argc, const char * argv[]) {
@@ -121,7 +78,7 @@ void reset()
     memset(display, 0, 2048); // clear display data
     
     if (! load_program("roms/IBM.ch8"))
-        exit(-1);
+        exit(1);
 }
 
 bool load_program(const char *filename)
@@ -148,15 +105,6 @@ bool load_program(const char *filename)
     return true;
 }
 
-void emulate_cycle()
-{
-    // Fetch Opcode
-    // Decode Opcode
-    // Execute Opcode
-    
-    // Update timers
-    return;
-}
 
 void load_fontset()
 {

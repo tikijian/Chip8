@@ -4,14 +4,22 @@
 //  Copyright © 2016 Tikijian. No rights reserved.
 //
 
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <SDL2/SDL.h>
+
 
 #include "cpu.h"
 // =============== Chip-8 Internals ===================
+
+unsigned char memory[4096] = {0};
+unsigned char V[16] = {0};
+unsigned char display[2048] = {0}; // 2048 pixels
+unsigned char keyboard[16] = {0};
+unsigned char sound_t = 0;
+unsigned char delay_t = 0;
+unsigned short I = 0;
+unsigned short PC = 0;
+unsigned short stack[16] = {0};
+unsigned short SP = 0;
+unsigned short opcode;
 
 // =============== General purpose functions ==========
 
@@ -49,8 +57,8 @@ int main(int argc, const char * argv[]) {
 //    }
     
     
-    for (int i = 0; i < 100; i++) {
-        printf("%#02x\n", memory[0x200 + i]);
+    for (int i = 0; i < 100; i = i + 2) {
+        printf("%#04x\n", memory[0x200 + i]);
     }
     
     printf("Bye!\n");
@@ -73,6 +81,7 @@ void reset()
     I       = 0;
     SP      = 0;
     
+    memset(memory, 0, 4096);
     memset(V, 0, 16); //reset registers
     memset(keyboard, 0, 16); // reset keyboard state
     memset(display, 0, 2048); // clear display data

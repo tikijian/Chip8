@@ -10,40 +10,45 @@
 #ifndef cpu_h
 #define cpu_h
 
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <SDL2/SDL.h>
 // =============== Internals ==========================
 
 // 4KB RAM
-unsigned char memory[4096] = {0};
+extern unsigned char memory[4096];
 
 // 16 General purpose registers
-unsigned char V[16] = {0};
+extern unsigned char V[16];
 
 // Address register
-unsigned short I = 0;
+extern unsigned short I;
 
 // Sound register
-unsigned char sound_t = 0;
+extern unsigned char sound_t;
 
 // Delay timer
-unsigned char delay_t = 0;
+extern unsigned char delay_t;
 
 // Program counter register
-unsigned short PC = 0;
+extern unsigned short PC;
 
 // Stack
-unsigned short stack[16] = {0};
+extern unsigned short stack[16];
 
 // Stack pointer
-unsigned short SP = 0;
+extern unsigned short SP;
 
 // Current opcode
-unsigned short opcode;
+extern unsigned short opcode;
 
 // Display array
-unsigned char display[2048]; // 2048 pixels
+extern unsigned char display[2048]; // 2048 pixels
 
 // Keyboard with 16 keys
-unsigned char keyboard[16] = {0};
+extern unsigned char keyboard[16];
 
 // ====================================================
 

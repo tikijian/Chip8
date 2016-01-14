@@ -15,7 +15,7 @@ unsigned char display[2048] = {0}; // 2048 pixels
 unsigned char keyboard[16] = {0};
 unsigned char sound_t = 0;
 unsigned char delay_t = 0;
-unsigned short I = 0;
+unsigned short Ireg = 0;
 unsigned short PC = 0;
 unsigned short stack[16] = {0};
 unsigned short SP = 0;
@@ -78,7 +78,7 @@ void reset()
     printf("Starting CPU reset sequence...\n");
     PC      = 0x200; // start program at address 0x200
     opcode  = 0;
-    I       = 0;
+    Ireg    = 0;
     SP      = 0;
     
     memset(memory, 0, 4096);

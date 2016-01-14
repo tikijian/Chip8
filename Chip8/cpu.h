@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 #include <SDL2/SDL.h>
 // =============== Internals ==========================
 
@@ -24,7 +25,7 @@ extern unsigned char memory[4096];
 extern unsigned char V[16];
 
 // Address register
-extern unsigned short I;
+extern unsigned short Ireg;
 
 // Sound register
 extern unsigned char sound_t;

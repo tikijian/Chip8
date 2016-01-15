@@ -12,6 +12,7 @@ void emulate_cycle()
 {
     // Fetch Opcode
     opcode = memory[PC] << 8 | memory[PC + 1];
+    printf("0x%04x\n", opcode);
     
     // Decode & execute Opcode
     switch (opcode & 0xF000)
@@ -20,24 +21,21 @@ void emulate_cycle()
             if ((opcode & 0x0F00) > 0) {
                 // 0NNN Calls RCA 1802 program at address NNN. Not necessary for most ROMs. Skip
                 PC += 2;
-                break;
             } else if ((opcode & 0x00FF) == 0xE0) {
                 // 00E0 Clears the screen.
                 memset(display, 0, 2048);
                 PC += 2;
-                break;
             } else if ((opcode & 0x00FF) == 0xEE) {
                 // 00EE Returns from a subroutine.
                 // The interpreter sets the program counter to the address at the top of the stack, then subtracts 1 from the stack pointer.
                 PC = stack[SP];
                 SP -= 1;
-                break;
             } else {
                 // should not happen
-                printf ("Unknown opcode: 0x%X\n", opcode);
+                printf ("Unknown opcode: 0x%04x\n", opcode);
                 PC += 2;
-                break;
             }
+            break;
         case 0x1000:
             // 1NNN Jumps to address NNN.
             PC = opcode & 0x0FFF;
@@ -82,8 +80,77 @@ void emulate_cycle()
             PC += 2;
             break;
         case 0x8000:
-            // TODO
-            PC += 2;
+            switch (opcode & 0x000F) {
+                case 0x0000:
+                    // 8XY0 Set Vx = Vy.
+                    V[ opcode & 0x0F00 ] = V[ opcode & 0x00F0];
+                    PC += 2;
+                    break;
+                case 0x0001:
+                    // 8XY1 Set Vx = Vx OR Vy.
+                    // Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+                    V[ opcode & 0x0F00 ] |= V[ opcode & 0x00F0 ];
+                    PC += 2;
+                    break;
+                case 0x0002:
+                    // 8XY2 Set Vx = Vx AND Vy.
+                    V[ opcode & 0x0F00 ] &= V[ opcode & 0x00F0 ];
+                    PC += 2;
+                    break;
+                case 0x0003:
+                    // 8XY3 Set Vx = Vx XOR Vy.
+                    V[ opcode & 0x0F00 ] ^= V[ opcode & 0x00F0 ];
+                    PC += 2;
+                    break;
+                case 0x0004:
+                    // 8XY4 Set Vx = Vx + Vy, set VF = carry.
+                    // The values of Vx and Vy are added together.
+                    // If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0.
+                    if ((V[ opcode & 0x0F00 ] += V[ opcode & 0x00F0 ]) > 0xFF)
+                        V[0xF] = 1;
+                    else
+                        V[0xF] = 0;
+                    
+                    PC += 2;
+                    break;
+                case 0x0005:
+                    // 8XY5 Set Vx = Vx - Vy, set VF = NOT borrow.
+                    // If Vx > Vy, then VF is set to 1, otherwise 0.
+                    // Then Vy is subtracted from Vx, and the results stored in Vx.
+                    if (V[ opcode & 0x0F00 ] > V[ opcode & 0x00F0 ])
+                        V[0xF] = 1;
+                    else
+                        V[0xF] = 0;
+                    
+                    V[ opcode & 0x0F00 ] -= V[ opcode & 0x00F0 ];
+                    PC += 2;
+                    break;
+                case 0x0006:
+                    // 8X06 Set Vx = Vx SHR 1.
+                    // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+                    V[0xF] = (V[ opcode & 0x0F00] & 1) ? 1 : 0;
+                    V[ opcode & 0x0F00] >>= 1;
+                    PC += 2;
+                    break;
+                case 0x0007:
+                    // 8XY7 Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
+                    V[0xF] = V[ opcode & 0x00F0 ] > V[ opcode & 0x0F00 ];
+                    V[ opcode & 0x0F00 ] = V[ opcode & 0x00F0 ] - V[ opcode & 0x0F00 ];
+                    
+                    PC += 2;
+                    break;
+                case 0x000E:
+                    // 8X0E Set Vx = Vx SHL 1.
+                    // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+                    V[0xF] = ((V[ opcode & 0x0F00] & 0x80) != 0) ;
+                    V[ opcode & 0x0F00 ] <<= 1;
+                    PC += 2;
+                    break;
+                default:
+                    printf ("Unknown opcode: 0x%04x\n", opcode);
+                    PC += 2;
+                    break;
+            }
             break;
         case 0x9000:
             // 9XY0 Skips the next instruction if VX doesn't equal VY.
@@ -112,6 +179,7 @@ void emulate_cycle()
             break;
         case 0xD000:
             /// DXYN TODO
+            DXYN(opcode);
             PC += 2;
             break;
         case 0xE000:
@@ -131,10 +199,12 @@ void emulate_cycle()
                         PC += 2;
                     break;
                 default:
-                    printf ("Unknown opcode: 0x%X\n", opcode);
+                    printf ("Unknown opcode: 0x%04x\n", opcode);
                     PC += 2;
                     break;
             }
+            
+            break;
         case 0xF000:
             switch (opcode & 0x00FF) {
                 case 0x0007:
@@ -176,10 +246,7 @@ void emulate_cycle()
                     PC += 2;
                     break;
                 case 0x0033:
-                    // Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I,
-                    //the middle digit at I plus 1, and the least significant digit at I plus 2.
-                    // (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)
-                    // TODO:
+                    FX33(opcode);
                     PC += 2;
                     break;
                 case 0x0055:
@@ -200,13 +267,54 @@ void emulate_cycle()
                     PC += 2;
                     break;
                 default:
-                    printf ("Unknown opcode: 0x%X\n", opcode);
+                    printf ("Unknown opcode: 0x%04x\n", opcode);
                     PC += 2;
                     break;
             }
-
+            break;
+        default:
+            printf ("Unknown opcode: 0x%04x\n", opcode);
+            PC += 2;
+            break;
     }
     
     // Update timers
+    return;
+}
+
+// FX33 Opcode
+/* 
+ Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address 
+ in I,the middle digit at I plus 1, and the least significant digit at I plus 2.
+ (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, 
+ the tens digit at location I+1, and the ones digit at location I+2.)
+*/
+void FX33(const unsigned short op_code)
+{
+    // register index
+    short X = op_code & 0x0F00;
+    memory[Ireg + 2] = V[X] % 10;
+    memory[Ireg + 1] = (V[X] / 10) % 10;
+    memory[Ireg] = V[X] / 100;
+    return;
+}
+
+// DXYN Opcode
+/*
+ Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+ 
+ The interpreter reads n bytes from memory, starting at the address stored in I. 
+ These bytes are then displayed as sprites on screen at coordinates (Vx, Vy). 
+ Sprites are XORed onto the existing screen. If this causes any pixels to be erased, 
+ VF is set to 1, otherwise it is set to 0.
+ If the sprite is positioned so part of it is outside the coordinates of the display, 
+ it wraps around to the opposite side of the screen.
+*/
+void DXYN(const unsigned short op_code)
+{
+    // register index
+    short X = op_code & 0x0F00;
+    short Y = op_code & 0x00F0;
+
     return;
 }

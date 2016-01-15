@@ -56,10 +56,11 @@ int main(int argc, const char * argv[]) {
         
 //    }
     
-    
     for (int i = 0; i < 100; i = i + 2) {
-        printf("%#04x\n", memory[0x200 + i]);
+        printf("0x%04x\n", memory[0x200 + i] << 8 | memory[0x200 + (i+1)]);
     }
+    
+    getchar();
     
     printf("Bye!\n");
     return 0;

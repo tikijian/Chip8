@@ -59,6 +59,10 @@ extern unsigned char keyboard[16];
 
 void emulate_cycle();
 
+void DXYN(const unsigned short op_code);
+
+void FX33(const unsigned short op_code);
+
 // ====================================================
 
 #endif /* cpu_h */

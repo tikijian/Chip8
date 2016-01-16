@@ -21,6 +21,7 @@ unsigned short stack[16] = {0};
 unsigned short SP = 0;
 unsigned short opcode;
 bool waiting_key = false;
+bool draw_flag   = false;
 
 // =============== General purpose functions ==========
 
@@ -36,30 +37,83 @@ void load_fontset();
 // Loads rom into memory
 bool load_program(const char *filename);
 
+bool process_events(SDL_Window *window);
+
 // ====================================================
 
+
+// =============== CONSTANTS ==========================
+
+#define PIXEL_SIZE 5
+#define W_WIDTH 640
+#define W_HEIGHT 320
+
+// ====================================================
 
 int main(int argc, const char * argv[]) {
     
     initialize();
+    bool is_running = true;
+    
+    SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER);
+    
+    SDL_Window *window = SDL_CreateWindow("CHIP-8 Eulator",
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          W_WIDTH,
+                                          W_HEIGHT,
+                                          0);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    SDL_RenderSetScale(renderer, 10.0, 10.0);
     
     // Emulation loop
-//    for(;;)
-//    {
+    while (is_running) {
+        is_running = process_events(window);
+        
         // Emulate one cycle
+        emulate_cycle();
+        
         
         
         // If the draw flag is set, update the screen
-       
-            //drawGraphics();
+        if (draw_flag) {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            int y = 0;
+            int x = 0;
+            
+            for (int i = 0; i < 2048; i++) {
+                // if pixel at display[i] is set, then draw color is White
+                if(x != 0 && (x % 63 == 0)){
+                    x = 0;
+                    y += 1;
+                }
+                else {
+                    x++;
+                }
+                
+                if (display[i])
+                    SDL_RenderDrawPoint(renderer, x, y);
+            }
+            SDL_RenderPresent(renderer);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+            draw_flag = false;
+        }
         
         // Store key press state (Press and Release)
-        
-//    }
-    
-    getchar();
+
+        SDL_Delay(2);
+    }
     
     printf("Bye!\n");
+    
+    SDL_DestroyRenderer(renderer);
+    if(window)
+        SDL_DestroyWindow(window);
+    
+    SDL_Quit();
     return 0;
 }
 
@@ -86,8 +140,36 @@ void reset()
     memset(keyboard, 0, 16); // reset keyboard state
     memset(display, 0, 2048); // clear display data
     
-    if (! load_program("roms/IBM.ch8"))
+    if (! load_program("roms/INVADERS"))
         exit(1);
+}
+
+bool process_events(SDL_Window *window)
+{
+    SDL_Event event;
+    bool is_running = true;
+    
+    // Check for events
+    while(SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_WINDOWEVENT_CLOSE:
+                SDL_DestroyWindow(window);
+                window = NULL;
+                is_running = false;
+            break;
+            case SDL_KEYDOWN:
+                switch (event.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                        is_running = false;
+                    break;
+                }
+            break;
+            case SDL_QUIT:
+                is_running = false;
+            break;
+        }
+    }
+    return is_running;
 }
 
 bool load_program(const char *filename)

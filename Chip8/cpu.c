@@ -346,7 +346,7 @@ void DXYN(const unsigned short op_code)
         }
     }
     
-    // drawFlag = true;
+    draw_flag = true;
 
     return;
 }

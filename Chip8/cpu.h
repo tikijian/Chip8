@@ -52,8 +52,11 @@ extern unsigned char display[2048]; // 2048 pixels
 extern unsigned char keyboard[16];
 
 // Wait-key flag
-
 extern bool waiting_key;
+
+// Drawing flag - if true - SDL drawing occurs
+
+extern bool draw_flag;
 
 // ====================================================
 

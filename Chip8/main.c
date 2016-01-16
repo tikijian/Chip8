@@ -20,6 +20,7 @@ unsigned short PC = 0;
 unsigned short stack[16] = {0};
 unsigned short SP = 0;
 unsigned short opcode;
+bool waiting_key = false;
 
 // =============== General purpose functions ==========
 
@@ -56,10 +57,6 @@ int main(int argc, const char * argv[]) {
         
 //    }
     
-    for (int i = 0; i < 100; i = i + 2) {
-        printf("0x%04x\n", memory[0x200 + i] << 8 | memory[0x200 + (i+1)]);
-    }
-    
     getchar();
     
     printf("Bye!\n");
@@ -77,10 +74,12 @@ void initialize()
 void reset()
 {
     printf("Starting CPU reset sequence...\n");
+    srand((unsigned int) time(NULL));
     PC      = 0x200; // start program at address 0x200
     opcode  = 0;
     Ireg    = 0;
     SP      = 0;
+    waiting_key = false;
     
     memset(memory, 0, 4096);
     memset(V, 0, 16); //reset registers

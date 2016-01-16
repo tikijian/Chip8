@@ -51,6 +51,10 @@ extern unsigned char display[2048]; // 2048 pixels
 // Keyboard with 16 keys
 extern unsigned char keyboard[16];
 
+// Wait-key flag
+
+extern bool waiting_key;
+
 // ====================================================
 
 
@@ -62,6 +66,10 @@ void emulate_cycle();
 void DXYN(const unsigned short op_code);
 
 void FX33(const unsigned short op_code);
+
+unsigned short get_X(const unsigned short op_code);
+
+unsigned short get_Y(const unsigned short op_code);
 
 // ====================================================
 

@@ -22,6 +22,7 @@ unsigned short SP = 0;
 unsigned short opcode;
 bool waiting_key = false;
 bool draw_flag   = false;
+bool cls_flag    = false;
 
 // =============== General purpose functions ==========
 
@@ -44,9 +45,12 @@ bool process_events(SDL_Window *window);
 
 // =============== CONSTANTS ==========================
 
-#define PIXEL_SIZE 5
+#define PIXEL_SIZE 10.0
 #define W_WIDTH 640
 #define W_HEIGHT 320
+#define D_WIDTH 64
+#define D_HEIGHT 32
+#define DISPLAY_LENGTH 2048
 
 // ====================================================
 
@@ -66,7 +70,7 @@ int main(int argc, const char * argv[]) {
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    SDL_RenderSetScale(renderer, 10.0, 10.0);
+    SDL_RenderSetScale(renderer, PIXEL_SIZE, PIXEL_SIZE);
     
     // Emulation loop
     while (is_running) {
@@ -75,15 +79,22 @@ int main(int argc, const char * argv[]) {
         // Emulate one cycle
         emulate_cycle();
         
-        
+        if (cls_flag)
+        {
+            SDL_RenderClear(renderer);
+        }
         
         // If the draw flag is set, update the screen
         if (draw_flag) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+            
+            
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             int y = 0;
             int x = 0;
             
-            for (int i = 0; i < 2048; i++) {
+            for (int i = 0; i < DISPLAY_LENGTH; i++) {
                 // if pixel at display[i] is set, then draw color is White
                 if(x != 0 && (x % 63 == 0)){
                     x = 0;
@@ -97,14 +108,14 @@ int main(int argc, const char * argv[]) {
                     SDL_RenderDrawPoint(renderer, x, y);
             }
             SDL_RenderPresent(renderer);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            SDL_RenderClear(renderer);
+            
+            
             draw_flag = false;
         }
         
         // Store key press state (Press and Release)
 
-        SDL_Delay(2);
+        SDL_Delay(25);
     }
     
     printf("Bye!\n");
@@ -138,9 +149,9 @@ void reset()
     memset(memory, 0, 4096);
     memset(V, 0, 16); //reset registers
     memset(keyboard, 0, 16); // reset keyboard state
-    memset(display, 0, 2048); // clear display data
+    memset(display, 0, DISPLAY_LENGTH); // clear display data
     
-    if (! load_program("roms/INVADERS"))
+    if (! load_program("roms/TETRIS"))
         exit(1);
 }
 

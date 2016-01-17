@@ -58,6 +58,10 @@ extern bool waiting_key;
 
 extern bool draw_flag;
 
+// Clear screen flag - if true - SDL will clear screen
+
+extern bool cls_flag;
+
 // ====================================================
 
 

@@ -26,6 +26,7 @@ void emulate_cycle()
             } else if ((opcode & 0x00FF) == 0xE0) {
                 // 00E0 Clears the screen.
                 memset(display, 0, 2048);
+                cls_flag = true;
                 PC += 2;
             } else if ((opcode & 0x00FF) == 0xEE) {
                 // 00EE Returns from a subroutine.
@@ -46,20 +47,20 @@ void emulate_cycle()
             // 2NNN Calls subroutine at NNN.
             // The interpreter increments the stack pointer, then puts the current PC on the top of the stack.
             // The PC is then set to nnn.
-            stack[SP] = PC;
             SP += 1;
+            stack[SP] = PC;
             PC = opcode & 0x0FFF;
             break;
         case 0x3000:
             // 3XNN Skips the next instruction if VX equals NN.
-            if ( V[ get_X(opcode) ] == (opcode & 0X00FF) )
+            if ( V[ get_X(opcode) ] == (opcode & 0x00FF) )
                 PC += 4;
             else
                 PC += 2;
             break;
         case 0x4000:
             // 4XNN Skips the next instruction if VX doesn't equal NN.
-            if ( V[ get_X(opcode) ] != (opcode & 0X00FF) )
+            if ( V[ get_X(opcode) ] != (opcode & 0x00FF) )
                 PC += 4;
             else
                 PC += 2;
@@ -179,7 +180,7 @@ void emulate_cycle()
             PC += 2;
             break;
         case 0xD000:
-            /// DXYN TODO
+            /// DXYN
             DXYN(opcode);
             PC += 2;
             break;
@@ -281,6 +282,15 @@ void emulate_cycle()
     }
     
     // Update timers
+    if(delay_t > 0)
+        --delay_t;
+    
+    if(sound_t > 0)
+    {
+        if(sound_t == 1)
+            printf("BEEP!\n");
+        --sound_t;
+    }
     return;
 }
 
